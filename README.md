@@ -19,8 +19,13 @@ You may also be interested in the
 have not used, and is also not a CXC product, but is likely to be more useful
 than anything you find here).
 
+# Docker images
+
+- [build/ciao-4.8/Dockerfile](https://hub.docker.com/r/djburke/ciao-build/)
+
 # Status
 
 Any information provided here is placed in the public domain, although note
 that CIAO itself is licensed for use under the GNU General Public License (GPL)
 Version 3 (or at your option any later version).
+
