@@ -1,6 +1,6 @@
 # Fun with Docker and CIAO
 
-Here are some (well, *one*) experiment in combining
+Here are some (well, *two*) experiments in combining
 [Docker](https://docs.docker.com/) with
 [CIAO](http://cxc.harvard.edu/ciao/). It is:
 
@@ -25,8 +25,9 @@ CIAO, and so includes AstroPy and Matplotlib. The Sherpa environment has
 been updated to use the Matplotlib for plotting, rather than ChIPS, since
 it works better within a Jupyter notebook.
 
-   % docker pull ciao49
-   % docker run -p 8888:8888 ciao49 /home/ciaouser/bin/start_jupyter.bash
+```
+% docker run -p 8888:8888 djburke/ciao-build:4.9.0 /home/ciaouser/bin/start_jupyter.bash
+```
 
 This starts a Jupyter session which can be accessed as http://localhost:8888/
 and the password is ciao. Note that the Jupyter interface claims to be able to
