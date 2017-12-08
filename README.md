@@ -16,11 +16,25 @@ to talk.
 
 You may also be interested in the
 [ldouchy/ciao](https://hub.docker.com/r/ldouchy/ciao/) Docker image (which I
-have not used, and is also not a CXC product, but is likely to be more useful
-than anything you find here).
+have not used, and is also not a CXC product).
+
+# Quick guide
+
+The CIAO 4.9 version is intended to allow use of Jupyter notebooks with
+CIAO, and so includes AstroPy and Matplotlib. The Sherpa environment has
+been updated to use the Matplotlib for plotting, rather than ChIPS, since
+it works better within a Jupyter notebook.
+
+   % docker pull ciao49
+   % docker run -p 8888:8888 ciao49 /home/ciaouser/bin/start_jupyter.bash
+
+This starts a Jupyter session which can be accessed as http://localhost:8888/
+and the password is ciao. Note that the Jupyter interface claims to be able to
+start both Python 2.7 and 3 sessions, but they are both Python 2.7.
 
 # Docker images
 
+- [build/ciao-4.9/Dockerfile](https://hub.docker.com/r/djburke/ciao-build/)
 - [build/ciao-4.8/Dockerfile](https://hub.docker.com/r/djburke/ciao-build/)
 
 # Status
