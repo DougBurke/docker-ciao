@@ -1,0 +1,137 @@
+FROM centos:7
+
+LABEL maintainer="Douglas Burke <dburke@cfa.harvard.edu>" \
+      description="Test build of CIAO 4.10/Python 3.5/CentOS 7; this is *not* an official CXC product" \
+      version="CIAO 4.10/Python 3.5/CentOS 7"
+
+RUN yum -y update && yum clean all
+
+# This is not guaranteed to be a minimal useful set of packages
+#
+RUN yum install -y \
+    curl \
+    tar \
+    wget \
+    less \
+    make \
+    file \
+    vim \
+    gcc-c++ gcc-gfortran
+
+ENV CIAO_INSTALL_BASE=/opt \
+    CIAO_VERSION=ciao-4.10 \
+    CIAO_GROUP=ciao \
+    CIAO_USER=ciaouser
+
+# Set up a root password for development
+RUN echo "root:rootpass" | chpasswd
+
+# It looks like it's safest to use a new ENV line to refer to
+# previous settings
+ENV CIAO_BASE=${CIAO_INSTALL_BASE}/${CIAO_VERSION}
+
+RUN groupadd ${CIAO_GROUP} \
+    && useradd -r -m -g ${CIAO_GROUP} ${CIAO_USER}
+
+# Install the packages. Fortunately ADD will unzip/pack the tar files
+# which makes the Dockerfile easier to maintin.
+#
+ADD update_paths.py ${CIAO_INSTALL_BASE}/
+ADD store.centos/* ${CIAO_INSTALL_BASE}/
+RUN chown -R ${CIAO_USER}:${CIAO_GROUP} ${CIAO_INSTALL_BASE}
+
+ADD run_ciao_notebooks.sh ciao-install /home/${CIAO_USER}/
+ADD jupyter_notebook_config.py /home/${CIAO_USER}/.jupyter/
+ADD notebooks/* /home/${CIAO_USER}/notebooks/
+RUN chown ${CIAO_USER}:${CIAO_GROUP} /home/${CIAO_USER}/run_ciao_notebooks.sh /home/${CIAO_USER}/ciao-install
+RUN chown -R ${CIAO_USER}:${CIAO_GROUP} /home/${CIAO_USER}/.jupyter
+RUN chown -R ${CIAO_USER}:${CIAO_GROUP} /home/${CIAO_USER}/notebooks
+
+# The following was pieced together following the ciao-install script
+# and the "build CIAO" thread at
+# http://cxc.harvard.edu/ciao4.10/threads/ciao_build_linux/
+# but all mistakes are my own.
+#
+USER ${CIAO_USER}
+WORKDIR ${CIAO_BASE}
+
+RUN ./configure \
+    && bash bin/ciao-python-fix \
+    && . bin/ciao.bash \
+    && ahelp -r
+
+# RUN echo "# Testing CIAO" \
+#     && . bin/ciao.bash \
+#     && cd test \
+#     && make test
+
+RUN echo "# Updating the paths" \
+    && . bin/ciao.bash \
+    && python ../update_paths.py
+### 
+### # RUN echo "# Retesting CIAO" \
+### #     && . bin/ciao.bash \
+### #     && cd test \
+### #     && make test
+
+# It seems that ots/lib needs to be added since I was unable to get
+# matplotlib to find libfreetype/libpython<>m without it
+#
+ENV LD_LIBRARY_PATH=${CIAO_BASE}/ots/lib
+ENV PKG_CONFIG_PATH=${CIAO_BASE}/ots/lib/pkgconfig:${CIAO_BASE}/lib/pkgconfig
+
+WORKDIR /home/${CIAO_USER}
+
+RUN echo "# Upgrade pip" \
+    && . ${CIAO_BASE}/bin/ciao.bash \
+    && ciaorun pip3 install --upgrade pip
+
+# I tried to install PyMC3 but it wants to upgrade NumPy to 1.14 (CIAO uses
+# 1.12) and there's a problem somewhere in the uninstallation/installation;
+# it might be due to the path shenanighans I have employed, but not clear
+# why.
+#
+RUN echo "# Installing useful packages" \
+    && . ${CIAO_BASE}/bin/ciao.bash \
+    && ciaorun pip3 install astropy aplpy scipy pandas altair jupyter bash_kernel \
+    && python -m bash_kernel.install
+
+RUN echo "# Installing matplotlib (manually)" \
+    && . ${CIAO_BASE}/bin/ciao.bash \
+    && ciaorun pip3 download --no-deps --no-binary :all: matplotlib \
+    && tar xzf matplotlib*gz \
+    && cd `ls -1 | grep matplotlib | grep -v tar` \
+    && python -mpip install . \
+    && cd .. \
+    && rm -rf matplotlib*
+
+# saba 0.1 needs pytest available before installation.
+#
+RUN echo "# Installing saba" \
+    && . ${CIAO_BASE}/bin/ciao.bash \
+    && ciaorun pip3 install pytest \
+    && ciaorun pip3 install saba
+
+# Set up the Sherpa RC file to pick up matplotlib rather than ChIPS;
+# leave IO as crates.
+#
+RUN echo "# Setting .sherpa.rc" \
+    && sed -e 's/: chips/: pylab/' ${CIAO_BASE}/config/sherpa/.sherpa.rc > .sherpa.rc
+    
+# Autostart CIAO; use ~/.bashrc rather than ~/.bash_profile as easier to
+# edit.
+#
+RUN echo "# Start up CIAO automatically" >> .bashrc \
+    && echo ". ${CIAO_BASE}/bin/ciao.bash" >> .bashrc \
+    && echo "echo ''" >> .bashrc \
+    && echo "echo '*** CIAO has been started'" >> .bashrc \
+    && echo "echo '*** Note: CALDB has not been installed; use download_obsid_caldb'" >> .bashrc \
+    && echo "echo '*** The root password is rootpass'" >> .bashrc \
+    && echo "echo '***'" >> .bashrc \
+    && echo "echo '*** Use run_ciao_notebooks.sh to run the Jupyter notebook server'" >> .bashrc \
+    && echo "echo '***    and the password for this is ciaopass'" >> .bashrc \
+    && echo "echo '***'" >> .bashrc \
+    && echo "echo '***    The notebooks/ directory contains an example notebook'" >> .bashrc \
+    && echo "echo ''" >> .bashrc
+
+#CMD ["/bin/bash"]
