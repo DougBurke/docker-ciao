@@ -21,7 +21,7 @@ have not used, and is also not a CXC product).
 # Quick guide: CIAO 4.10/Python 3.5
 
 The CIAO 4.10 version is intended to allow use of Jupyter notebooks with
-CIAO, and so includes AstroPy, Matplotlib, AplPy, and SciPy. The Sherpa
+CIAO, and so includes AstroPy, Matplotlib, AplPy, Saba, and SciPy. The Sherpa
 environment has been updated to use the Matplotlib for plotting, rather
 than ChIPS, since it works better within a Jupyter notebook (in fact
 the CIAO graphical packages, including ChIPS and prism, have not been
@@ -62,10 +62,12 @@ start both Python 2.7 and 3 sessions, but they are both Python 2.7.
 
 # Docker images
 
+The images are available from https://hub.docker.com/r/djburke/ciao-build/
+
 - build/ciao-4.10/Dockerfile.ubuntu - CIAO 4.10, Python 3.5, Ubuntu 18.04
 - build/ciao-4.10/Dockerfile.centos - CIAO 4.10, Python 3.5, Centos 7
-- [build/ciao-4.9/Dockerfile](https://hub.docker.com/r/djburke/ciao-build/)
-- [build/ciao-4.8/Dockerfile](https://hub.docker.com/r/djburke/ciao-build/)
+- build/ciao-4.9/Dockerfile
+- build/ciao-4.8/Dockerfile
 
 For CIAO 4.10, you first need to download the tar files into the directory
 `store.ubuntu` or `store.centos`, using the supplied `ciao-install`
@@ -90,9 +92,9 @@ Note that I have not installed some of the graphical packages of
 CIAO - namely `prism`, `obsvis`, and `chips` - since they are tricker
 to use effectively from within a Docker container.
 
-The builds *do* contain several additional Python packages: `astropy`,
-`scipy`, `matplotlib`, `aplpy`, and Jupyter notebooks for both Python 3.5
-and bash.
+The builds *do* contain several additional Python packages - `astropy`,
+`scipy`, `matplotlib`, `aplpy`, and `saba` as examples - and Jupyter
+notebook support for both Python 3.5 and bash.
 
 # Status
 
