@@ -1,5 +1,15 @@
 # Fun with Docker and CIAO
 
+A [Python notebook](http://nbviewer.jupyter.org/github/DougBurke/docker-ciao/blob/master/build/ciao-4.10/notebooks/Example%20CIAO%20notebook.ipynb)
+mixing up CIAO and external Python packages, such as
+[AstroPy](http://docs.astropy.org/),
+[Saba](http://saba.readthedocs.io/en/latest/),
+[SciPy](https://www.scipy.org/)
+and
+[Matplotlib](https://matplotlib.org/).
+
+## What is this?
+
 Here are some experiments in combining
 [Docker](https://docs.docker.com/) with
 [CIAO](http://cxc.harvard.edu/ciao/). It is:
@@ -43,7 +53,8 @@ or
 ```
 
 The password for the notebook server is `ciaopass` and there is an example
-notebook available at `notebooks/Example CIAO notebook.ipynb`.
+notebook available at
+[`notebooks/Example CIAO notebook.ipynb`](http://nbviewer.jupyter.org/github/DougBurke/docker-ciao/blob/master/build/ciao-4.10/notebooks/Example%20CIAO%20notebook.ipynb).
 
 # Quick guide: CIAO 4.9/Python 2.7
 
